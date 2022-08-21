@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Block Community</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="">
+<style>
+	body 
+	{
+	    background: url(pattern.png) repeat left top;
+	    margin-top:0; 
+	    margin-bottom:0; 
+	    margin-left:0;
+	}
+
+	fieldset
+	{
+		background: white;
+		border-color: darkblue;
+	}
+
+	legend
+	{
+		color: Darkblue;
+		text-align: center;
+	}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
+<body bgcolor="lightblue">
+<table border="0" width="100%"><tr><td align="center">
+<table border="0">
+<tr><td align="center"><img src="BlockCommunity.png"></td></tr>		
+<tr><td>
+<div class="">
+<fieldset ><legend ><h2>Save New Property</h2></legend>
+ Property Wallet Address: <br>
+ <input id="txtProp" value="" style="width:320px" /><br><br>
+ Property Fee:<br>
+ <input id="txtFee" value="" style="width:100px" />
+ <input type="button" value="Guardar" onClick="enviarTransaccion()" /></fieldset>
+</div>
+<div class="">
+	<fieldset><legend><h2>My Fee</h2></legend>
+	Property Wallet Address:<br>
+	<input id="txtProp2" value="" style="width:320px" />
+	<input type="button" value="Revisar" onClick="checkFees()" /></fieldset>
+</div>
+<div class="">
+	<fieldset style="text-align: center;"><legend><h2>Fee Pays</h2></legend>
+	<input type="button" value="Pagar" onClick="PayFee()" /><br><br></fieldset>
+</div>
+<div class="">
+	<fieldset><legend><h2>Pays NFTs</h2></legend>
+	<table border="0">
+		<tr><td><img src="nftSample.jpg" width="190px"></td><td><img src="nftSample.jpg" width="190px"></td></tr>
+		<tr><td><img src="nftSample.jpg" width="190px"></td><td><img src="nftSample.jpg" width="190px"></td></tr>
+		<tr><td><img src="nftSample.jpg" width="190px"></td><td></td></tr>
+
+	</table>	
+</div>
+</td></tr></table>
+</td></tr></table>
+</body>
+<script>
+
+    const {ethereum} = window;
+    const resultado = Boolean(ethereum && ethereum.isMetaMask);
+
+	let abi = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newProperty",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "fee",
+				"type": "uint256"
+			}
+		],
+		"name": "addProperty",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "changeOwner",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "feePayment",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "oldOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnerSet",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_monto",
+				"type": "uint256"
+			}
+		],
+		"name": "Pay",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [],
+		"name": "getOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "Property",
+				"type": "address"
+			}
+		],
+		"name": "verFees",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+    async function enviarTransaccion() {
+
+		const address = document.getElementById("txtProp").value;
+		const fee = document.getElementById("txtFee").value;
+
+        let web3provider = window.ethereum;
+        try {
+            await web3provider.request({ method: "eth_requestAccounts"});
+        }
+        catch (Error) {
+            alert(Error);
+        }
+
+        const web3 = new Web3(web3provider);
+
+        const accounts = await web3.eth.getAccounts();
+        const cuenta = accounts[0];
+
+        let contrato = await new web3.eth.Contract(abi, "0x1AF7F9205B15e0bdA1Aa8447061f4559002c44fD");
+		//try {
+			await contrato.methods.addProperty(address, fee).send({from: cuenta});
+			//await contrato.methods.addProperty(address, fee);
+			alert('Property successful Registered');
+		/*} 
+        catch (Error) {
+			alert(Error);
+            //alert('No estas Autorizado para registrar nuevas propiedades');
+        }*/
+        
+    }
+
+	async function checkFees() {
+		let web3provider = window.ethereum;
+        try {
+            await web3provider.request({ method: "eth_requestAccounts"});
+        }
+        catch (Error) {
+            alert(Error);
+        }
+
+        const web3 = new Web3(web3provider);
+
+        const accounts = await web3.eth.getAccounts();
+        const cuenta = accounts[0];		//aqui obtengo la direccion de la wallet conectada
+
+		let contrato = await new web3.eth.Contract(abi, "0x1AF7F9205B15e0bdA1Aa8447061f4559002c44fD");
+
+		const add2 = document.getElementById("txtProp2").value;
+		alert('Monthly Fee: '+await contrato.methods.verFees(add2).call());
+	}
+
+	async function PayFee() {
+		let web3provider = window.ethereum;
+		try {
+			await web3provider.request({ method: "eth_requestAccounts"});
+		}
+		catch (Error) {
+			alert(Error);
+		}
+
+		const web3 = new Web3(web3provider);
+
+		const accounts = await web3.eth.getAccounts();
+		const cuenta = accounts[0];
+
+		let contrato = await new web3.eth.Contract(abi, "0x1AF7F9205B15e0bdA1Aa8447061f4559002c44fD");
+
+		try {
+			await contrato.methods.feePayment();
+			alert('Pago Efectuado de: '+cuenta);
+		}
+		catch (Error) {
+			alert(Error);
+		}
+}
+
+
+</script>
